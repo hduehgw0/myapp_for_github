@@ -1,0 +1,17 @@
+# 共通
+node_modules/
+log/
+tmp/
+.env
+.vite/
+build/
+dist/
+*.log
+
+# Rails関連（backend_app用）
+/db/*.sqlite3
+/db/*.sqlite3-journal
+/public/assets
+/storage
+/config/master.key
+/config/credentials.yml.enc

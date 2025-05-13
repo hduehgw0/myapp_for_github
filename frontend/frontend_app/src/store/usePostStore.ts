@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { apiClient } from "../api";
-import { Post } from "../types/post";
+import { Post, PostInput } from "../types/post";
 
 interface PostState {
   posts: Post[];
@@ -8,11 +8,8 @@ interface PostState {
   loading: boolean;
   error: string | null;
   fetchPosts: () => Promise<void>;
-  addPost: (post: Omit<Post, "id" | "createdAt" | "updatedAt">) => Promise<void>;
-  updatePost: (post: Post) => Promise<void>;
-  deletePost: (id: number) => Promise<void>;
-  startEdit: (post: Post) => void;
-  cancelEdit: () => void;
+  addPost: (post: PostInput) => Promise<void>;
+  // 他の関数は省略（後で画像対応するならupdatePostも）
 }
 
 export const usePostStore = create<PostState>((set) => ({
@@ -31,10 +28,23 @@ export const usePostStore = create<PostState>((set) => ({
     }
   },
 
-  addPost: async (post) => {
+  addPost: async (post: PostInput) => {
     set({ loading: true, error: null });
     try {
-      const res = await apiClient.post<Post>("/posts", post);
+      const formData = new FormData();
+      formData.append("post[title]", post.title);
+      formData.append("post[body]", post.body);
+      formData.append("post[published]", post.published);
+      if (post.image) {
+        formData.append("post[image]", post.image);
+      }
+
+      const res = await apiClient.post<Post>("/posts", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       set((state) => ({
         posts: [res.data, ...state.posts],
         loading: false,
@@ -43,36 +53,4 @@ export const usePostStore = create<PostState>((set) => ({
       set({ error: err.message || "投稿作成に失敗しました", loading: false });
     }
   },
-
-  updatePost: async (post) => {
-    set({ loading: true, error: null });
-    try {
-      const res = await apiClient.put<Post>(`/posts/${post.id}`, post);
-      set((state) => ({
-        posts: state.posts.map((p) =>
-          p.id === res.data.id ? res.data : p
-        ),
-        editingPost: null,
-        loading: false,
-      }));
-    } catch (err: any) {
-      set({ error: err.message || "投稿更新に失敗しました", loading: false });
-    }
-  },
-
-  deletePost: async (id) => {
-    set({ loading: true, error: null });
-    try {
-      await apiClient.delete(`/posts/${id}`);
-      set((state) => ({
-        posts: state.posts.filter((post) => post.id !== id),
-        loading: false,
-      }));
-    } catch (err: any) {
-      set({ error: err.message || "投稿削除に失敗しました", loading: false });
-    }
-  },
-
-  startEdit: (post) => set({ editingPost: post }),
-  cancelEdit: () => set({ editingPost: null }),
 }));

@@ -49,70 +49,90 @@ export const PostsList: React.FC = () => {
   return (
     <Stack spacing={4}>
       {Array.isArray(posts) &&
-        posts.map((post: Post) => (
-          <Box key={post.id} borderWidth="1px" borderRadius="lg" p={4}>
-            <AnimatePresence mode="wait" initial={false}>
-              {editingPost?.id === post.id ? (
-                <MotionBox
-                  key="form"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Input
-                    value={titleInput}
-                    onChange={(e) => setTitleInput(e.target.value)}
-                    placeholder="タイトルを入力"
-                    mb={2}
-                  />
-                  <Textarea
-                    value={bodyInput}
-                    onChange={(e) => setBodyInput(e.target.value)}
-                    placeholder="本文を入力"
-                    mb={2}
-                  />
-                  <Button
-                    colorScheme="blue"
-                    onClick={() =>
-                      updatePost({
-                        ...post,
-                        title: titleInput,
-                        body: bodyInput,
-                      })
-                    }
-                    mr={2}
+        posts.map((post: Post) => {
+          console.log("投稿画像URL:", post.imageUrl); // ✅ ここで出力！
+
+          return (
+            <Box key={post.id} borderWidth="1px" borderRadius="lg" p={4}>
+              <AnimatePresence mode="wait" initial={false}>
+                {editingPost?.id === post.id ? (
+                  <MotionBox
+                    key="form"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    更新する
-                  </Button>
-                  <Button onClick={cancelEdit}>キャンセル</Button>
-                </MotionBox>
-              ) : (
-                <MotionBox
-                  key="view"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Heading size="md">{post.title}</Heading>
-                  <Text mb={2}>{post.body}</Text>
-                  <Text fontSize="sm" color="gray.500" mb={2}>
-                    投稿日: {new Date(post.createdAt).toLocaleString()}
-                  </Text>
-                  <Button
-                    colorScheme="red"
-                    onClick={() => deletePost(post.id)}
-                    mr={2}
+                    <Input
+                      value={titleInput}
+                      onChange={(e) => setTitleInput(e.target.value)}
+                      placeholder="タイトルを入力"
+                      mb={2}
+                    />
+                    <Textarea
+                      value={bodyInput}
+                      onChange={(e) => setBodyInput(e.target.value)}
+                      placeholder="本文を入力"
+                      mb={2}
+                    />
+                    <Button
+                      colorScheme="blue"
+                      onClick={() =>
+                        updatePost({
+                          ...post,
+                          title: titleInput,
+                          body: bodyInput,
+                        })
+                      }
+                      mr={2}
+                    >
+                      更新する
+                    </Button>
+                    <Button onClick={cancelEdit}>キャンセル</Button>
+                  </MotionBox>
+                ) : (
+                  <MotionBox
+                    key="view"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
                   >
-                    削除
-                  </Button>
-                  <Button onClick={() => startEdit(post)}>編集</Button>
-                </MotionBox>
-              )}
-            </AnimatePresence>
-          </Box>
-        ))}
+                    <Heading size="md">{post.title}</Heading>
+                    <Text mb={2}>{post.body}</Text>
+
+                    {post.imageUrl && (
+                      <Box mb={2}>
+                        <img
+                          src={post.imageUrl}
+                          alt="投稿画像"
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    <Text fontSize="sm" color="gray.500" mb={2}>
+                      投稿日: {new Date(post.createdAt).toLocaleString()}
+                    </Text>
+                    <Button
+                      colorScheme="red"
+                      onClick={() => deletePost(post.id)}
+                      mr={2}
+                    >
+                      削除
+                    </Button>
+                    <Button onClick={() => startEdit(post)}>編集</Button>
+                  </MotionBox>
+                )}
+              </AnimatePresence>
+            </Box>
+          );
+        })}
     </Stack>
   );
 };

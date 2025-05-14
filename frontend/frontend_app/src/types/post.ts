@@ -13,7 +13,7 @@ export interface Post {
 export type PostInput = {
   title: string;
   body: string;
-  published: string;
+  published: string | null;
   image?: File; // ← Fileオブジェクト（画像）
 };
 

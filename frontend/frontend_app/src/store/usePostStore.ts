@@ -37,7 +37,7 @@ export const usePostStore = create<PostState>((set) => ({
       const formData = new FormData();
       formData.append("post[title]", post.title);
       formData.append("post[body]", post.body);
-      formData.append("post[published]", post.published);
+      formData.append("post[published]", post.published ?? "");
       if (post.image) {
         formData.append("post[image]", post.image);
       }
@@ -63,7 +63,7 @@ export const usePostStore = create<PostState>((set) => ({
       const formData = new FormData();
       formData.append("post[title]", post.title);
       formData.append("post[body]", post.body);
-      formData.append("post[published]", post.published);
+      formData.append("post[published]", post.published ?? "");
       if (post.image) {
         formData.append("post[image]", post.image); // 画像があれば差し替え
       }

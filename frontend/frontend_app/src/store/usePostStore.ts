@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { apiClient } from "../api";
-import { Post, PostInput } from "../types/post"; // PostInput 型を使う
+import { Post } from "../types/post";
 
 interface PostState {
   posts: Post[];
@@ -8,8 +8,8 @@ interface PostState {
   loading: boolean;
   error: string | null;
   fetchPosts: () => Promise<void>;
-  addPost: (post: PostInput) => Promise<void>;
-  updatePost: (post: PostInput & { id: number }) => Promise<void>; // ID付き
+  addPost: (formData: FormData) => Promise<void>;
+  updatePost: (formData: FormData, id: number) => Promise<void>;
   deletePost: (id: number) => Promise<void>;
   startEdit: (post: Post) => void;
   cancelEdit: () => void;
@@ -31,23 +31,14 @@ export const usePostStore = create<PostState>((set) => ({
     }
   },
 
-  addPost: async (post) => {
+  addPost: async (formData) => {
     set({ loading: true, error: null });
     try {
-      const formData = new FormData();
-      formData.append("post[title]", post.title);
-      formData.append("post[body]", post.body);
-      formData.append("post[published]", post.published ?? "");
-      if (post.image) {
-        formData.append("post[image]", post.image);
-      }
-
       const res = await apiClient.post<Post>("/posts", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       set((state) => ({
         posts: [res.data, ...state.posts],
         loading: false,
@@ -57,23 +48,14 @@ export const usePostStore = create<PostState>((set) => ({
     }
   },
 
-  updatePost: async (post) => {
+  updatePost: async (formData, id) => {
     set({ loading: true, error: null });
     try {
-      const formData = new FormData();
-      formData.append("post[title]", post.title);
-      formData.append("post[body]", post.body);
-      formData.append("post[published]", post.published ?? "");
-      if (post.image) {
-        formData.append("post[image]", post.image); // 画像があれば差し替え
-      }
-
-      const res = await apiClient.put<Post>(`/posts/${post.id}`, formData, {
+      const res = await apiClient.put<Post>(`/posts/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-
       set((state) => ({
         posts: state.posts.map((p) =>
           p.id === res.data.id ? res.data : p

@@ -1,11 +1,20 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # ✅ Deviseのルート（API仕様、json固定）
+  devise_for :users,
+             defaults: { format: :json }, # ← これが追加ポイント
+             path: '',
+             path_names: {
+               sign_in: 'login',       # POST /login
+               sign_out: 'logout',     # DELETE /logout
+               registration: 'signup'  # POST /signup
+             }
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
+  # ✅ POST一覧API（保護されたルート）
+  resources :posts
+
+  # ✅ アプリのヘルスチェック用（開発用）
   get "up" => "rails/health#show", as: :rails_health_check
 
-  resources :posts
-  # Defines the root path route ("/")
+  # rootルートはAPI専用アプリでは不要（またはJSON返却専用にしてもOK）
   # root "posts#index"
 end
